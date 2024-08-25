@@ -55,7 +55,7 @@ export async function deleteTodo(idToken, todoId) {
 export async function getUploadUrl(idToken, todoId) {
   const response = await Axios.post(
     `${process.env.REACT_APP_API_ENDPOINT}/todos/${todoId}/attachment`,
-    '',
+      '',
     {
       headers: {
         'Content-Type': 'application/json',
@@ -63,9 +63,11 @@ export async function getUploadUrl(idToken, todoId) {
       }
     }
   )
+  console.log("Response: ", response.data)
   return response.data.uploadUrl
 }
 
 export async function uploadFile(uploadUrl, file) {
+  console.log("URL: ", uploadUrl)
   await Axios.put(uploadUrl, file)
 }

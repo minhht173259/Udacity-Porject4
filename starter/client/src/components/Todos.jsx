@@ -17,7 +17,7 @@ import { deleteTodo, getTodos, patchTodo } from '../api/todos-api'
 import { NewTodoInput } from './NewTodoInput'
 
 export function Todos() {
-  function renderTodos() {
+  function renderTodos(loadingTodos, todos) {
     if (loadingTodos) {
       return renderLoading()
     }
@@ -25,10 +25,11 @@ export function Todos() {
     return renderTodosList()
   }
 
+
   function renderTodosList() {
     return (
       <Grid padded>
-        {todos.map((todo, pos) => {
+        {todos && todos.length > 0 && todos.map((todo, pos) => {
           return (
             <Grid.Row key={todo.todoId}>
               <Grid.Column width={1} verticalAlign="middle">
@@ -77,7 +78,7 @@ export function Todos() {
   async function onTodoDelete(todoId) {
     try {
       const accessToken = await getAccessTokenSilently({
-        audience: `https://test-endpoint.auth0.com/api/v2/`,
+        audience: `https://${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
         scope: 'delete:todo'
       })
       await deleteTodo(accessToken, todoId)
@@ -91,7 +92,7 @@ export function Todos() {
     try {
       const todo = todos[pos]
       const accessToken = await getAccessTokenSilently({
-        audience: `https://test-endpoint.auth0.com/api/v2/`,
+        audience: `https://${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
         scope: 'write:todo'
       })
       await patchTodo(accessToken, todo.todoId, {
@@ -128,12 +129,13 @@ export function Todos() {
     async function foo() {
       try {
         const accessToken = await getAccessTokenSilently({
-          audience: `https://test-endpoint.auth0.com/api/v2/`,
+          audience: `https://${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
           scope: 'read:todos'
         })
         console.log('Access token: ' + accessToken)
-        const todos = await getTodos(accessToken)
-        setTodos(todos)
+        await getTodos(accessToken).then(res => {
+          setTodos(res)
+        })
         setLoadingTodos(false)
       } catch (e) {
         alert(`Failed to fetch todos: ${e.message}`)
